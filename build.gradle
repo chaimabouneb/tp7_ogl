@@ -10,7 +10,7 @@ buildscript {
 import javax.mail.*
 import javax.mail.internet.*
 
-// 3. LES PLUGINS
+
 plugins {
     id 'java'
     id 'jacoco'
