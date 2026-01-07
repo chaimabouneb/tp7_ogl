@@ -1,0 +1,136 @@
+// 1. LE BLOC BUILDSCRIPT DOIT ETRE EN PREMIER
+buildscript {
+    repositories { mavenCentral() }
+    dependencies {
+        classpath 'com.sun.mail:javax.mail:1.6.2'
+    }
+}
+
+// 2. LES IMPORTS
+import javax.mail.*
+import javax.mail.internet.*
+
+// 3. LES PLUGINS
+plugins {
+    id 'java'
+    id 'jacoco'
+    id 'org.sonarqube' version '4.4.1.3373'
+    id 'maven-publish'
+}
+
+group = "SIL1"
+version = "1.0"
+
+repositories {
+    mavenCentral()
+}
+
+// 4. LES DEPENDANCES
+dependencies {
+    testImplementation 'io.cucumber:cucumber-java:7.18.1'
+    testImplementation 'io.cucumber:cucumber-junit:7.18.1'
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'net.masterthought:cucumber-reporting:5.7.7'
+}
+
+// 5. LES TACHES DE NOTIFICATION (Slack et Mail)
+tasks.register('notifySlack') {
+    doLast {
+        def slackUrl = "https://hooks.slack.com/services/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"
+        def payload = '{"text": "🚀 Déploiement réussi ! La librairie ' + project.group + ':' + project.name + ':' + project.version + ' est en ligne."}'
+
+        def connection = new URL(slackUrl).openConnection()
+        connection.setRequestMethod("POST")
+        connection.setRequestProperty("Content-Type", "application/json")
+        connection.setDoOutput(true)
+        connection.getOutputStream().write(payload.getBytes("UTF-8"))
+
+        if (connection.responseCode == 200) {
+            println "Message Slack envoyé !"
+        } else {
+            println "Erreur Slack : " + connection.responseCode
+        }
+    }
+}
+
+tasks.register('notifyMail') {
+    doLast {
+        def props = new Properties()
+        props.put("mail.smtp.auth", "true")
+        props.put("mail.smtp.starttls.enable", "true")
+        props.put("mail.smtp.host", "smtp.gmail.com")
+        props.put("mail.smtp.port", "587")
+
+        def session = Session.getInstance(props, new Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication("mm_ferrah@esi.dz", "zybl oiya nxdz adek")
+            }
+        })
+
+        Message message = new MimeMessage(session)
+        message.setFrom(new InternetAddress("mm_ferrah@esi.dz"))
+        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse("equipe@example.com"))
+        message.setSubject("Notification de Déploiement API")
+        message.setText("Le déploiement de la version ${project.version} est terminé.")
+
+        Transport.send(message)
+        println "Email envoyé avec succès !"
+    }
+}
+
+// 6. CONFIGURATION PUBLISHING
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url = uri("https://mymavenrepo.com/repo/cEmjfkxugPlzLxXg1A2B/")
+            credentials {
+                username = "myMavenRepo"
+                password = "test0005"
+            }
+        }
+    }
+}
+
+// Lier les notifications au publish
+tasks.named('publish') {
+    finalizedBy 'notifySlack', 'notifyMail'
+}
+
+// 7. AUTRES CONFIGURATIONS (Test, Jacoco, Sonar, Javadoc)
+test {
+    useJUnit()
+    finalizedBy jacocoTestReport
+    systemProperty 'cucumber.publish.enabled', 'false'
+    systemProperty 'cucumber.plugin', 'pretty, html:build/reports/cucumber/cucumber-report.html, json:build/reports/cucumber/cucumber.json'
+    outputs.upToDateWhen { false }
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        html.required = true
+        xml.required = true
+    }
+}
+
+sonar {
+    properties {
+        property "sonar.projectKey", "untitled"
+        property "sonar.projectName", "Untitled Project"
+        property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
+        property "sonar.java.binaries", "build/classes/java/main"
+    }
+}
+
+tasks.named('sonar') {
+    dependsOn test, jacocoTestReport
+}
+
+javadoc {
+    destinationDir = file("$buildDir/docs/javadoc")
+}
