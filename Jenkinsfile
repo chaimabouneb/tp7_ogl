@@ -12,7 +12,6 @@ pipeline {
                 }
             }
         }
-    }
      
         // Phase 2.2: Code Analysis
         stage('Code Analysis') {
@@ -46,4 +45,6 @@ pipeline {
             }
         
     }
+            }
+
 }
