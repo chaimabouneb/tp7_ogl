@@ -6,6 +6,11 @@ pipeline {
             steps {
                 bat './gradlew'
             }
+            post {
+                always {
+                    junit 'build/test-results/test/**/*.xml'
+                }
+            }
         }
     }
 }
