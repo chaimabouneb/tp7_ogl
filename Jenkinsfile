@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Test') {
             steps {
-                bat './gradlew'
+                bat './gradlew clean test'
             }
             post {
                 always {
@@ -13,22 +13,26 @@ pipeline {
             }
         }
      
-        // Phase 2.2: Code Analysis
+        // Phase 2.2: Code Analysis - AVEC withSonarQubeEnv
         stage('Code Analysis') {
             steps {
-                bat './gradlew sonarqube'
+                script {
+                    withSonarQubeEnv('sonar') {  // 'sonar' = nom configuré dans Jenkins
+                        bat './gradlew sonarqube'
+                    }
+                }
             }
         }
         
-        
-        
-           // Phase 2.3: Code quality
+        // Phase 2.3: Code Quality
         stage('Code Quality') {
             steps {
-                  waitForQualityGate abortPipeline: true 
+                script {
+                    timeout(time: 1, unit: 'HOURS') {
+                        waitForQualityGate abortPipeline: true
+                    }
+                }
             }
         }
-        
-            }
-
+    }
 }
