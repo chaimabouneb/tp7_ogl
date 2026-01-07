@@ -22,7 +22,13 @@ pipeline {
         
         
         
-       
+           // Phase 2.3: Code quality
+        stage('Code Quality') {
+            steps {
+                  waitForQualityGate abortPipeline: true 
+            }
+        }
+        
             }
 
 }
