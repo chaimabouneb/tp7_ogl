@@ -18,7 +18,7 @@ pipeline {
             steps {
                 script {
                     withSonarQubeEnv('sonar') {  // 'sonar' = nom configuré dans Jenkins
-                        bat './gradlew sonarqube'
+                        bat './gradlew sonar'
                     }
                 }
             }
