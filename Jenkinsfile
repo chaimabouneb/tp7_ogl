@@ -12,7 +12,7 @@ pipeline {
     }
     
     stages {
-        // ========== PHASE 1: TESTS ==========
+        
         stage('Test') {
             steps {
                 script {
