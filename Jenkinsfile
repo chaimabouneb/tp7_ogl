@@ -12,26 +12,47 @@ pipeline {
                 }
             }
         }
-     
-        // Phase 2.2: Code Analysis - AVEC withSonarQubeEnv
+        
         stage('Code Analysis') {
             steps {
                 script {
-                    withSonarQubeEnv('sonar') {  // 'sonar' = nom configuré dans Jenkins
-                        bat './gradlew sonar'
+                    withSonarQubeEnv('sonar') {
+                        bat '''
+                            ./gradlew clean compileJava compileTestJava
+                            ./gradlew sonarqube \
+                                -Dsonar.java.source=11 \
+                                -Dsonar.java.target=11 \
+                                -Dsonar.gradle.skipCompile=true
+                        '''
                     }
                 }
             }
         }
         
-        // Phase 2.3: Code Quality
         stage('Code Quality') {
             steps {
                 script {
-                    timeout(time: 1, unit: 'HOURS') {
+                    timeout(time: 5, unit: 'MINUTES') {
                         waitForQualityGate abortPipeline: true
                     }
                 }
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                bat './gradlew assemble javadoc'
+            }
+            post {
+                success {
+                    archiveArtifacts artifacts: 'build/libs/*.jar, build/docs/javadoc/**/*'
+                }
+            }
+        }
+        
+        stage('Deploy') {
+            steps {
+                bat './gradlew publish'
             }
         }
     }
