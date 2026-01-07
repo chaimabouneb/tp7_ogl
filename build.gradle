@@ -21,6 +21,12 @@ plugins {
 group = "SIL1"
 version = "1.0"
 
+// 🔧 FORCER JAVA 11 POUR COMPATIBILITÉ SONARQUBE
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
 repositories {
     mavenCentral()
 }
@@ -118,20 +124,77 @@ jacocoTestReport {
     }
 }
 
-sonar {
+// ========== CONFIGURATION SONARQUBE CORRIGÉE ==========
+sonarqube {
     properties {
-        property "sonar.projectKey", "untitled"
-        sonar.java.libraries property
-        property "sonar.projectName", "Untitled Project"
-        property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
+        property "sonar.projectKey", "tp7_ogl"
+        property "sonar.projectName", "TP7 OGL - API Java"
+        
+        // 🔧 FORCER JAVA 11 POUR SONARQUBE
+        property "sonar.java.source", "11"
+        property "sonar.java.target", "11"
+        
+        // 📚 CONFIGURATION DES LIBRAIRIES (FIX pour l'erreur Java 21)
+        property "sonar.java.libraries", getSonarLibraries()
         property "sonar.java.binaries", "build/classes/java/main"
+        
+        // 🚫 DÉSACTIVER LA COMPILATION AUTOMATIQUE
+        property "sonar.gradle.skipCompile", "true"
+        
+        // 📊 CONFIGURATION JACOCO
+        property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
+        property "sonar.junit.reportPaths", "build/test-results/test"
+        
+        // 🔧 EXCLUSIONS
+        property "sonar.exclusions", "**/*Test.java,**/test/**,build/**"
     }
 }
 
-tasks.named('sonar') {
-    dependsOn test, jacocoTestReport
+// FONCTION POUR RÉCUPÉRER LES LIBRAIRIES POUR SONARQUBE
+def getSonarLibraries() {
+    def javaHome = System.getProperty('java.home')
+    def libs = []
+    
+    // Ajouter les librairies JRE/JDK (Java 11)
+    if (javaHome) {
+        def javaHomePath = javaHome.replace('\\', '/')
+        libs.add("$javaHomePath/lib/rt.jar")
+        libs.add("$javaHomePath/lib/jce.jar")
+        libs.add("$javaHomePath/lib/**/*.jar")
+    }
+    
+    // Ajouter les dépendances du projet
+    configurations.runtimeClasspath.each { file ->
+        if (file.exists()) {
+            libs.add(file.absolutePath)
+        }
+    }
+    
+    // Retourner sous forme de string séparé par des virgules
+    return libs.join(',')
+}
+
+// TÂCHE POUR AFFICHER LES LIBRAIRIES DÉTECTÉES
+task printSonarLibraries {
+    doLast {
+        println "📚 Librairies détectées pour SonarQube:"
+        println getSonarLibraries()
+    }
 }
 
 javadoc {
     destinationDir = file("$buildDir/docs/javadoc")
 }
+
+// ========== CONFIGURATION DES TÂCHES ==========
+tasks.named('sonar') {
+    dependsOn test, jacocoTestReport
+}
+
+// 🔧 TÂCHE POUR COMPILER AVANT SONAR
+task compileForSonar {
+    dependsOn 'compileJava', 'compileTestJava'
+}
+
+// Lier sonar à la compilation
+sonar.dependsOn compileForSonar
