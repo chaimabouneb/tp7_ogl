@@ -13,7 +13,7 @@ pipeline {
             }
         }
     }
-     stages {
+     
         // Phase 2.2: Code Analysis
         stage('Code Analysis') {
             steps {
@@ -44,6 +44,6 @@ pipeline {
                     archiveArtifacts artifacts: 'build/docs/javadoc/**/*'
                 }
             }
-        }
+        
     }
 }
