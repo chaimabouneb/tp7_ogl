@@ -10,7 +10,7 @@ buildscript {
 import javax.mail.*
 import javax.mail.internet.*
 
-
+// 3. LES PLUGINS
 plugins {
     id 'java'
     id 'jacoco'
@@ -63,12 +63,12 @@ tasks.register('notifyMail') {
 
         def session = Session.getInstance(props, new Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication("mm_ferrah@esi.dz", "zybl oiya nxdz adek")
+                return new PasswordAuthentication("lc_bounab@esi.dz", "dzyr lbpc shfq cwwv")
             }
         })
 
         Message message = new MimeMessage(session)
-        message.setFrom(new InternetAddress("mm_ferrah@esi.dz"))
+        message.setFrom(new InternetAddress("lc_bounab@esi.dz"))
         message.setRecipients(Message.RecipientType.TO, InternetAddress.parse("equipe@example.com"))
         message.setSubject("Notification de Déploiement API")
         message.setText("Le déploiement de la version ${project.version} est terminé.")
@@ -121,7 +121,6 @@ jacocoTestReport {
 sonar {
     properties {
         property "sonar.projectKey", "untitled"
-        sonar.java.libraries property
         property "sonar.projectName", "Untitled Project"
         property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
         property "sonar.java.binaries", "build/classes/java/main"
