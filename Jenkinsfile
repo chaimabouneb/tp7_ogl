@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Test') {
             steps {
-                bat './gradlew'
+                bat './gradlew test'  // Changed from just './gradlew'
             }
             post {
                 always {
@@ -16,14 +16,9 @@ pipeline {
         stage('Code Analysis') {
             steps {
                 script {
-                    withSonarQubeEnv('sonar') {
-                        bat '''
-                            ./gradlew clean compileJava compileTestJava
-                            ./gradlew sonarqube \
-                                -Dsonar.java.source=11 \
-                                -Dsonar.java.target=11 \
-                                -Dsonar.gradle.skipCompile=true
-                        '''
+                    withSonarQubeEnv('sonar') {  // Ensure 'sonar' matches your Jenkins config
+                        // Run sonar task directly
+                        bat './gradlew sonar'  // Simplified - no need for separate compile
                     }
                 }
             }
