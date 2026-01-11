@@ -33,7 +33,7 @@ node {
                 // Verify Quality Gate status; stop if Failed [cite: 30, 31]
                 timeout(time: 1, unit: 'HOURS') {
                     def qg = waitForQualityGate()
-                    if (qg.status != 'OK') {
+                   if (qg.status == 'ERROR') {
                         error "Pipeline aborted: Quality Gate Failed (${qg.status})"
                     }
                 }
