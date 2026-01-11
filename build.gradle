@@ -8,12 +8,18 @@ group = 'com.example'
 version = '1.0-SNAPSHOT'
 
 java {
+    // Downgrade to Java 17 for better compatibility
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(17)
     }
 }
 
-tasks.withType(JavaCompile) {
+// Ensure we compile with Java 17 compatibility
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    // Explicitly set source and target compatibility
+    sourceCompatibility = '17'
+    targetCompatibility = '17'
     options.release = 17
 }
 
@@ -50,7 +56,14 @@ test {
     // Include Cucumber tests
     systemProperty("cucumber.junit-platform.naming-strategy", "long")
     
+    // Enable debug info for JaCoCo
+    jvmArgs += ['-XX:+EnableDynamicAgentLoading', '-Xshare:off']
+    
     finalizedBy jacocoTestReport
+}
+
+jacoco {
+    toolVersion = "0.8.11"  // Use a compatible version with Java 17
 }
 
 jacocoTestReport {
@@ -58,6 +71,16 @@ jacocoTestReport {
     reports {
         xml.required = true
         html.required = true
+        csv.required = false
+    }
+    
+    // Ensure classes are compiled with debug info
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                '**/module-info.class'
+            ])
+        }))
     }
 }
 
@@ -66,12 +89,35 @@ sonar {
         property "sonar.projectKey", "tp7_ogl"
         property "sonar.projectName", "tp7_ogl"
         property "sonar.host.url", "http://localhost:9000"
-        property "sonar.sources", "src/main/java"
-        property "sonar.tests", "src/test/java"
+        
+        // Java specific properties
+        property "sonar.sourceEncoding", "UTF-8"
+        property "sonar.java.source", "17"
+        property "sonar.java.target", "17"
         property "sonar.java.binaries", "build/classes/java/main"
         property "sonar.java.test.binaries", "build/classes/java/test"
+        property "sonar.java.libraries", "build/libs/*.jar"
+        
+        // Sources and tests
+        property "sonar.sources", "src/main/java"
+        property "sonar.tests", "src/test/java"
+        
+        // Test reports
         property "sonar.junit.reportPaths", "build/test-results/test"
+        
+        // JaCoCo configuration
         property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
-        property "sonar.gradle.skipCompile", "true"  // To avoid the deprecation warning
+        property "sonar.coverage.exclusions", "**/test/**,**/generated/**"
+        
+        // Important: Skip compilation during SonarQube analysis
+        property "sonar.gradle.skipCompile", "true"
+        
+        // Force Java version compatibility
+        property "sonar.java.version", "17"
     }
+}
+
+// Ensure clean builds remove all previous artifacts
+clean {
+    delete 'build', 'out', '.gradle'
 }
