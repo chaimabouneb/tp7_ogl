@@ -1,58 +1,25 @@
-
-pipeline {
-    agent any
-tools {
-    // This must match the name you gave it in Global Tool Configuration
-    sonarScanner 'SonarScanner' 
-}
-    environment {
-        SONARQUBE_TOKEN = credentials('sonar-token')
+node {
+    // 1. Checkout the code
+    stage('Checkout') {
+        checkout scm
     }
 
-    tools {
-        gradle 'Gradle8'   // Keep your working Gradle
-        jdk 'jdk17'        // Match your Jenkins JDK installation name
+    // 2. Build with Gradle (Targeting Java 11)
+    stage('Build & Test') {
+        bat './gradlew clean test jacocoTestReport'
     }
 
-    stages {
-
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-
-        stage('Build & Test') {
-            steps {
-                bat './gradlew clean test jacocoTestReport'
-            }
-            post {
-                always {
-                    junit '**/build/test-results/test/*.xml'
-                    // Comment this out or delete it if the plugin isn't installed
-                    // jacoco execPattern: '**/build/jacoco/test.exec' 
-                }
-            }
-        }
-
-  stage('SonarQube Analysis') {
-    steps {
-        script {
-            withSonarQubeEnv('sonar') {
-                // Use the standalone scanner instead of Gradle
-                bat "sonar-scanner"
-            }
-        }
-    }
-}
-    }
-
-    post {
-        success {
-            echo 'Pipeline succeeded!'
-        }
-        failure {
-            echo 'Pipeline failed! Check console output and test reports.'
+    // 3. Run Sonar Scanner CLI directly
+    stage('SonarQube Analysis') {
+        // This gets the path to the scanner you configured in Jenkins Tools
+        def scannerHome = tool 'SonarScanner' 
+        
+        withSonarQubeEnv('sonar') {
+            bat "${scannerHome}/bin/sonar-scanner " +
+                "-Dsonar.projectKey=projet1_main " +
+                "-Dsonar.sources=src/main/java " +
+                "-Dsonar.java.binaries=build/classes/java/main " +
+                "-Dsonar.java.source=11"
         }
     }
 }
