@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id 'jacoco'
-    id 'org.sonarqube' version '2.8' // Compatible with Gradle 8.x and SonarQube 7.4+
+    id 'org.sonarqube' version '2.8'
 }
 
 group = 'com.example'
@@ -17,11 +17,11 @@ dependencies {
     // JUnit 5
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
 
-    // Cucumber 8.11.0 dependencies
-    testImplementation 'io.cucumber:cucumber-java:8.11.0'
-    testImplementation 'io.cucumber:cucumber-junit:8.11.0'
-    testImplementation 'io.cucumber:cucumber-junit-platform-engine:8.11.0'
-    testImplementation 'io.cucumber:cucumber-picocontainer:8.11.0'
+    // Cucumber 8.12.0
+    testImplementation 'io.cucumber:cucumber-java:8.12.0'
+    testImplementation 'io.cucumber:cucumber-junit:8.12.0'
+    testImplementation 'io.cucumber:cucumber-junit-platform-engine:8.12.0'
+    testImplementation 'io.cucumber:cucumber-picocontainer:8.12.0'
 }
 
 test {
@@ -43,7 +43,6 @@ jacocoTestReport {
     }
 }
 
-// SonarQube configuration for JDK 8 + SonarQube 7.4+
 sonarqube {
     properties {
         property "sonar.projectKey", "tp7_ogl"
