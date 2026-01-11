@@ -1,12 +1,8 @@
 pipeline {
     agent any
-
-    tools {
-        jdk 'jdk8'   // Ensure JDK 8 is installed on your Jenkins node
-    }
-
+    tools { jdk 'jdk8' }
     environment {
-        SONARQUBE_TOKEN = credentials('sonar-token') // Replace with your Jenkins SonarQube token ID
+        SONARQUBE_TOKEN = credentials('sonar-token') // Ensure this exists in Jenkins
     }
 
     stages {
@@ -18,14 +14,12 @@ pipeline {
 
         stage('Build & Test') {
             steps {
-                // Use Gradle wrapper instead of Jenkins Gradle tool
                 bat './gradlew clean test'
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-                // Run SonarQube analysis with Gradle wrapper
                 bat './gradlew sonarqube'
             }
         }
@@ -33,8 +27,10 @@ pipeline {
 
     post {
         always {
-            // Archive test results
-            junit 'build/test-results/test/**/*.xml'
+            // MUST be inside a node context
+            node {
+                junit 'build/test-results/test/**/*.xml'
+            }
         }
         success {
             echo 'Pipeline completed successfully!'
