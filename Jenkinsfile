@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        // SonarQube token ID from Jenkins credentials
         SONARQUBE_TOKEN = credentials('sonar-token')
         JAVA_HOME = tool name: 'JDK8', type: 'jdk' // Make sure JDK8 is installed in Jenkins
         PATH = "${tool 'Gradle8'}/bin:${env.PATH}" // Make sure Gradle 8 is installed
