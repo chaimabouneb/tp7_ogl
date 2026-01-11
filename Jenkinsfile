@@ -9,12 +9,12 @@ node {
         bat './gradlew clean test jacocoTestReport'
     }
 
-    // 3. Run Sonar Scanner CLI directly
-    stage('SonarQube Analysis') {
-        // This gets the path to the scanner you configured in Jenkins Tools
-        def scannerHome = tool 'SonarScanner' 
-        
-        withSonarQubeEnv('sonar') {
+   stage('SonarQube Analysis') {
+    def scannerHome = tool 'SonarScanner' 
+    
+    withSonarQubeEnv('sonar') {
+        // We add SONAR_SCANNER_OPTS to bypass the Java security restrictions
+        withEnv(["SONAR_SCANNER_OPTS=--add-opens java.base/java.lang=ALL-UNNAMED"]) {
             bat "${scannerHome}/bin/sonar-scanner " +
                 "-Dsonar.projectKey=projet1_main " +
                 "-Dsonar.sources=src/main/java " +
@@ -22,4 +22,5 @@ node {
                 "-Dsonar.java.source=11"
         }
     }
+}
 }
