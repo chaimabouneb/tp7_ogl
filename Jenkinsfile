@@ -5,7 +5,7 @@ pipeline {
 
         stage('Test') {
             steps {
-                bat './gradlew'
+                bat './gradlew clean test'
             }
             post {
                 always {
