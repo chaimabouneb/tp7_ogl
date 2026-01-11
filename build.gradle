@@ -1,62 +1,13 @@
-plugins {
-    id 'java'
-    id "org.sonarqube" version "4.4.1.3373"
-    id 'jacoco'
-}
-
-group = 'com.example'
-version = '1.0-SNAPSHOT'
-
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
+    // Explicitly set compatibility for the whole project
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
-tasks.withType(JavaCompile) {
-    options.release = 17
-}
-
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
-
-    // --- JUNIT 4 (Required by your MatrixSteps/ExampleTest) ---
-    testImplementation 'junit:junit:4.13.2'
-    testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
-
-    // --- CUCUMBER DEPENDENCIES (The fix for your 33 errors) ---
-    def cucumberVersion = '7.15.0'
-    testImplementation "io.cucumber:cucumber-java:${cucumberVersion}"
-    testImplementation "io.cucumber:cucumber-junit:${cucumberVersion}"
-    testImplementation "io.cucumber:cucumber-core:${cucumberVersion}"
-}
-
-test {
-    useJUnitPlatform()
-    finalizedBy jacocoTestReport
-}
-
-jacocoTestReport {
-    dependsOn test
-    reports {
-        xml.required = true
-    }
-}
-
-sonar {
-    properties {
-        property "sonar.projectKey", "tp7_ogl"
-        property "sonar.projectName", "tp7_ogl"
-        property "sonar.host.url", "http://localhost:9000"
-        property "sonar.sources", "src/main/java"
-        property "sonar.tests", "src/test/java"
-        property "sonar.java.binaries", "build/classes/java/main"
-        property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
-    }
+tasks.withType(JavaCompile).configureEach {
+    options.release.set(17)
+    options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
 }
