@@ -1,53 +1,76 @@
 pipeline {
     agent any
 
-    // 1️⃣ Set environment variables
     environment {
-        SONARQUBE_TOKEN = credentials('sonar-token') // Secret Text from Jenkins credentials
+        // Path to Gradle wrapper
+        GRADLE_CMD = './gradlew'
+        // SonarQube token
+        SONARQUBE_TOKEN = credentials('SONARQUBE_TOKEN')
     }
 
-    tools {
-        jdk 'jdk8' // Make sure you configured JDK 8 in Jenkins
+    options {
+        // Keep only 10 builds to save space
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        // Timestamps in logs
+        timestamps()
     }
 
     stages {
 
         stage('Checkout') {
             steps {
-                // Checkout the Git repository
-                checkout scm
+                git(
+                    url: 'https://github.com/chaimabouneb/tp7_ogl.git',
+                    branch: 'main'
+                )
             }
         }
 
         stage('Build & Test') {
             steps {
-                // Use Gradle wrapper to build and run tests
                 script {
-                    if (isUnix()) {
-                        sh './gradlew clean test'
-                    } else {
-                        bat './gradlew clean test'
-                    }
+                    // Use offline mode if dependencies are pre-cached
+                    // The --offline flag ensures Gradle doesn't try to fetch missing dependencies
+                    bat "${env.GRADLE_CMD} clean test --offline"
                 }
             }
-
-            // Always archive test results even if build fails
             post {
                 always {
-                    junit 'build/test-results/test/**/*.xml'
+                    // Archive test reports if they exist
+                    junit allowEmptyResults: true, testResults: 'build/test-results/test/*.xml'
                 }
             }
         }
 
-        stage('SonarQube Analysis') {
+        stage('Code Coverage') {
             steps {
-                // Run SonarQube analysis using the Gradle wrapper and token
                 script {
-                    if (isUnix()) {
-                        sh "./gradlew sonarqube -Dsonar.login=${env.SONARQUBE_TOKEN}"
-                    } else {
-                        bat "./gradlew sonarqube -Dsonar.login=${env.SONARQUBE_TOKEN}"
-                    }
+                    bat "${env.GRADLE_CMD} jacocoTestReport --offline"
+                }
+                publishHTML(target: [
+                    allowMissing: true,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: 'build/reports/jacoco/test/html',
+                    reportFiles: 'index.html',
+                    reportName: 'JaCoCo Test Report'
+                ])
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            when {
+                // Only run SonarQube if build and tests succeed
+                expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
+            }
+            environment {
+                SONAR_HOST_URL = 'http://YOUR_SONARQUBE_SERVER:9000'
+            }
+            steps {
+                script {
+                    bat "${env.GRADLE_CMD} sonarqube " +
+                        "-Dsonar.login=${env.SONARQUBE_TOKEN} " +
+                        "--offline"
                 }
             }
         }
@@ -55,13 +78,10 @@ pipeline {
 
     post {
         always {
-            echo 'Pipeline finished.'
-        }
-        success {
-            echo 'Build and analysis completed successfully!'
+            echo "Pipeline finished. Status: ${currentBuild.currentResult}"
         }
         failure {
-            echo 'Pipeline failed. Check logs for details.'
+            echo "Build failed! Check console output and test reports."
         }
     }
 }
