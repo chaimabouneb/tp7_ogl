@@ -2,13 +2,24 @@ pipeline {
     agent any
 
     tools {
-        jdk 'jdk8' // Use the installed JDK 8
+        // Use JDK 8 installed on Jenkins
+        jdk 'jdk8'
+        // SonarQube scanner (must be configured in Jenkins global tools)
+        sonarScanner 'SonarQubeScanner'
+    }
+
+    environment {
+        // SonarQube server authentication token
+        SONARQUBE_TOKEN = credentials('sonarqube-token') 
+        // Update this URL to match your SonarQube server
+        SONAR_HOST_URL = 'http://your-sonarqube-server:9000'
     }
 
     stages {
+
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/chaimabouneb/tp7_ogl.git', branch: 'main'
+                git branch: 'main', url: 'https://github.com/chaimabouneb/tp7_ogl.git'
             }
         }
 
@@ -16,15 +27,28 @@ pipeline {
             steps {
                 bat './gradlew clean test'
             }
+            post {
+                always {
+                    junit 'build/test-results/test/**/*.xml'
+                    jacoco execPattern: 'build/jacoco/test.exec'
+                }
+            }
         }
 
         stage('SonarQube Analysis') {
-            environment {
-                SONARQUBE = 'sonar' // your SonarQube configuration name in Jenkins
-            }
             steps {
-                withSonarQubeEnv('sonar') {
-                    bat './gradlew sonarqube'
+                withSonarQubeEnv('sonar') { // Name of the SonarQube server configured in Jenkins
+                    bat "./gradlew sonarqube " +
+                        "-Dsonar.host.url=%SONAR_HOST_URL% " +
+                        "-Dsonar.login=%SONARQUBE_TOKEN%"
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 1, unit: 'HOURS') {
+                    waitForQualityGate abortPipeline: true
                 }
             }
         }
@@ -32,7 +56,8 @@ pipeline {
 
     post {
         always {
-            junit 'build/test-results/test/**/*.xml'
+            archiveArtifacts artifacts: 'build/reports/jacoco/test/jacocoTestReport.xml', allowEmptyArchive: true
+            echo 'Pipeline finished.'
         }
     }
 }
