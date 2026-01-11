@@ -43,7 +43,7 @@ node {
 
             stage('Notification') {
                 // FIXED: Changed .dz to .com
-                emailtext body: "SUCCESS: Project ${env.JOB_NAME} Build #${env.BUILD_NUMBER} is deployed.", 
+                emailext body: "SUCCESS: Project ${env.JOB_NAME} Build #${env.BUILD_NUMBER} is deployed.", 
                          subject: "Build Success: ${env.JOB_NAME}", 
                          to: "lc_bounab@esi.dz"
                 
