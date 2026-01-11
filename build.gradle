@@ -14,13 +14,23 @@ repositories {
 }
 
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.2'
+    // JUnit 5 for unit testing
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+
+    // Cucumber for BDD testing
+    testImplementation 'io.cucumber:cucumber-java:8.12.0'
+    testImplementation 'io.cucumber:cucumber-junit:8.12.0'
+    testImplementation 'io.cucumber:cucumber-junit-platform-engine:8.12.0'
+    
+    // For DataTable and DI support
+    testImplementation 'io.cucumber:cucumber-picocontainer:8.12.0'
 }
 
 test {
-    useJUnitPlatform()
+    useJUnitPlatform() // Required for JUnit 5 + Cucumber
     testLogging {
         events "passed", "skipped", "failed"
+        exceptionFormat "full"
     }
 }
 
@@ -33,10 +43,11 @@ jacocoTestReport {
     reports {
         xml.required = true
         html.required = true
+        csv.required = false
     }
 }
 
-// SonarQube configuration for JDK 8 + SonarQube 7.4
+// SonarQube configuration for Gradle 8.x + Java 1.8
 sonarqube {
     properties {
         property "sonar.projectKey", "tp7_ogl"
