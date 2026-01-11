@@ -24,23 +24,19 @@ repositories {
 dependencies {
 
     // =========================
-    // JUNIT 4 (OBLIGATOIRE pour Cucumber)
+    // JUNIT 4 (REQUIS PAR CUCUMBER)
     // =========================
     testImplementation 'junit:junit:4.13.2'
 
     // =========================
-    // CUCUMBER
+    // CUCUMBER (DataTable inclus)
     // =========================
     testImplementation 'io.cucumber:cucumber-java:7.14.0'
     testImplementation 'io.cucumber:cucumber-junit:7.14.0'
-    testImplementation 'io.cucumber:cucumber-datatable:7.14.0'
-
-    // (optionnel mais recommandé)
-    testImplementation 'io.cucumber:cucumber-core:7.14.0'
 }
 
 test {
-    useJUnit()   // ⚠️ PAS useJUnitPlatform()
+    useJUnit()
     finalizedBy jacocoTestReport
 }
 
