@@ -14,7 +14,7 @@ node {
                 // Fixed path to find Cucumber JSON files
                 cucumber buildStatus: 'UNSTABLE', 
                          jsonReportDirectory: 'build/test-results/test', 
-                         fileIncludePattern: '**/*.json'
+                         fileIncludePattern: 'reports/*.json'
             }
 
             stage('Code Analysis') {
