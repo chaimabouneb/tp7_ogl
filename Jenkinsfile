@@ -57,7 +57,7 @@ node {
                 // Success: Email and Slack [cite: 42]
                 emailext body: "Deployment Successful: ${env.JOB_NAME} #${env.BUILD_NUMBER}", 
                          subject: "Success: ${env.JOB_NAME}", 
-                         to: "dev-team@esi.dz"
+                         to: "chaimabouneb19@gmail.dz"
                 
                 // Note: Requires Slack plugin and configured workspace
                 // slackSend color: 'good', message: "Successful deployment of ${env.JOB_NAME}"
