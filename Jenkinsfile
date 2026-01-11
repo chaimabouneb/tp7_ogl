@@ -35,9 +35,8 @@ pipeline {
     steps {
         script {
             withSonarQubeEnv('sonar') {
-                // Add -Dsonar.java.jdkHome if you know the path, 
-                // but usually 'clean' and 'sonar' together fixes bytecode issues.
-                bat './gradlew clean sonar'
+                // Use the standalone scanner instead of Gradle
+                bat "sonar-scanner"
             }
         }
     }
