@@ -67,7 +67,7 @@ node {
             // Notify team on failure in any phase [cite: 43]
             emailext body: "Pipeline Failed at stage ${env.STAGE_NAME}. Error: ${e.message}", 
                      subject: "FAILED: ${env.JOB_NAME}", 
-                     to: "chaimabouneb19@gmail.dz"
+                     to: "chaimabouneb19@gmail.com"
             throw e
         }
     }
