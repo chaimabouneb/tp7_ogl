@@ -1,7 +1,7 @@
 plugins {
     id 'java'
-    id "org.sonarqube" version "4.4.1.3373"
     id 'jacoco'
+    id "org.sonarqube" version "4.4.1.3373"
 }
 
 group = 'com.example'
@@ -9,12 +9,8 @@ version = '1.0-SNAPSHOT'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(17)
     }
-}
-
-tasks.withType(JavaCompile) {
-    options.release = 17
 }
 
 repositories {
@@ -22,15 +18,7 @@ repositories {
 }
 
 dependencies {
-
-    // =========================
-    // JUNIT 4 (REQUIS PAR CUCUMBER)
-    // =========================
     testImplementation 'junit:junit:4.13.2'
-
-    // =========================
-    // CUCUMBER (DataTable inclus)
-    // =========================
     testImplementation 'io.cucumber:cucumber-java:7.14.0'
     testImplementation 'io.cucumber:cucumber-junit:7.14.0'
 }
@@ -44,7 +32,6 @@ jacocoTestReport {
     dependsOn test
     reports {
         xml.required = true
-        html.required = true
     }
 }
 
