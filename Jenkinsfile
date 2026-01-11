@@ -25,21 +25,22 @@ pipeline {
             post {
                 always {
                     junit '**/build/test-results/test/*.xml'
-                    jacoco execPattern: '**/build/jacoco/test.exec'
+                    // Comment this out or delete it if the plugin isn't installed
+                    // jacoco execPattern: '**/build/jacoco/test.exec' 
                 }
             }
         }
 
-      stage('SonarQube Analysis') {
-    steps {
-        script {
-            withSonarQubeEnv('SonarQube') {
-                // Adding 'clean' here is the ultimate safety net
-                bat './gradlew clean sonar'
+   stage('SonarQube Analysis') {
+            steps {
+                script {
+                    withSonarQubeEnv('SonarQube') {
+                        // Use 'sonar' instead of 'sonarqube' (it's the newer command)
+                        bat './gradlew sonar' 
+                    }
+                }
             }
         }
-    }
-}
     }
 
     post {
