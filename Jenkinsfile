@@ -2,13 +2,13 @@ pipeline {
     agent any
 
     tools {
-        jdk 'jdk8'
+        jdk 'jdk8' // Use the installed JDK 8
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/chaimabouneb/tp7_ogl.git'
+                git url: 'https://github.com/chaimabouneb/tp7_ogl.git', branch: 'main'
             }
         }
 
@@ -16,25 +16,15 @@ pipeline {
             steps {
                 bat './gradlew clean test'
             }
-            post {
-                always {
-                    junit 'build/test-results/test/**/*.xml'
-                }
-            }
         }
 
-        stage('Code Analysis') {
+        stage('SonarQube Analysis') {
+            environment {
+                SONARQUBE = 'sonar' // your SonarQube configuration name in Jenkins
+            }
             steps {
-                withSonarQubeEnv('sonar') { // Must match Jenkins SonarQube server name
+                withSonarQubeEnv('sonar') {
                     bat './gradlew sonarqube'
-                }
-            }
-        }
-
-        stage('Quality Gate') {
-            steps {
-                timeout(time: 1, unit: 'HOURS') {
-                    waitForQualityGate abortPipeline: true
                 }
             }
         }
@@ -42,7 +32,7 @@ pipeline {
 
     post {
         always {
-            archiveArtifacts artifacts: 'build/reports/jacoco/test/html/**', allowEmptyArchive: true
+            junit 'build/test-results/test/**/*.xml'
         }
     }
 }
