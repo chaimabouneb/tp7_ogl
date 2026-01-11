@@ -1,6 +1,5 @@
 plugins {
     id 'java'
-    // Using a stable version that works well with Java 17
     id "org.sonarqube" version "4.4.1.3373"
     id 'jacoco'
 }
@@ -9,15 +8,12 @@ group = 'com.example'
 version = '1.0-SNAPSHOT'
 
 java {
-    // We keep the toolchain at 21 if you have it installed, 
-    // but we force the bytecode to be version 17 (Major 61)
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
 tasks.withType(JavaCompile) {
-    // This is the magic fix: it tells the compiler to create Java 17 classes
     options.release = 17
 }
 
@@ -26,8 +22,19 @@ repositories {
 }
 
 dependencies {
+    // --- JUNIT 5 (Modern) ---
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
+
+    // --- JUNIT 4 (Required by your MatrixSteps/ExampleTest) ---
+    testImplementation 'junit:junit:4.13.2'
+    testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
+
+    // --- CUCUMBER DEPENDENCIES (The fix for your 33 errors) ---
+    def cucumberVersion = '7.15.0'
+    testImplementation "io.cucumber:cucumber-java:${cucumberVersion}"
+    testImplementation "io.cucumber:cucumber-junit:${cucumberVersion}"
+    testImplementation "io.cucumber:cucumber-core:${cucumberVersion}"
 }
 
 test {
