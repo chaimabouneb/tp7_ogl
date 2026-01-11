@@ -43,7 +43,7 @@ node {
 
             stage('Notification') {
                 // FIXED: Changed .dz to .com
-                emailext body: "SUCCESS: Project ${env.JOB_NAME} Build #${env.BUILD_NUMBER} is deployed.", 
+                mail body: "SUCCESS: Project ${env.JOB_NAME} Build #${env.BUILD_NUMBER} is deployed.", 
                          subject: "Build Success: ${env.JOB_NAME}", 
                          to: "lc_bounab@esi.dz"
                 
@@ -52,7 +52,7 @@ node {
             }
 
         } catch (Exception e) {
-            emailext body: "FAILED: Stage ${env.STAGE_NAME} failed with error: ${e.message}", 
+            mail body: "FAILED: Stage ${env.STAGE_NAME} failed with error: ${e.message}", 
                      subject: "Build Failed: ${env.JOB_NAME}", 
                      to: "lc_bounab@esi.dz"
             
