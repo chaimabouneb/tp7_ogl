@@ -5,7 +5,9 @@ pipeline {
         // Path to Gradle wrapper
         GRADLE_CMD = './gradlew'
         // SonarQube token
-        SONARQUBE_TOKEN = credentials('SONARQUBE_TOKEN')
+        
+    SONARQUBE_TOKEN = credentials('sonar-token')
+
     }
 
     options {
