@@ -2,13 +2,12 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE_TOKEN = credentials('sonar-token') // use your Jenkins credential ID
+        SONARQUBE_TOKEN = credentials('sonar-token')
     }
 
     tools {
-        // Make sure the names match your Jenkins global tools configuration
-        gradle 'Gradle8'
-        jdk 'JDK17'
+        gradle 'Gradle8'   // Keep your working Gradle
+        jdk 'jdk17'        // Match your Jenkins JDK installation name
     }
 
     stages {
@@ -33,7 +32,7 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarQube') { // Make sure the SonarQube server name matches your Jenkins config
+                withSonarQubeEnv('SonarQube') {
                     bat './gradlew sonarqube'
                 }
             }
