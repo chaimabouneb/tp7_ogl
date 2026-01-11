@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        jdk 'jdk8' // Ensure JDK 8 installed on Jenkins
+        jdk 'jdk8'
     }
 
     stages {
