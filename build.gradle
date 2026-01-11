@@ -50,5 +50,10 @@ jacocoTestReport {
 sonar {
     properties {
         property "sonar.java.binaries", "build/classes/java/main"
+        
+    
+        property "sonar.java.source", "11" // Or "8"
+        property "sonar.java.target", "11"
+    
     }
 }
