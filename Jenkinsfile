@@ -10,13 +10,13 @@ pipeline {
         
         stage('Build') {
             steps {
-                bat 'gradlew clean compileJava compileTestJava'
+                bat 'gradlew.bat clean compileJava compileTestJava'
             }
         }
         
         stage('Test') {
             steps {
-                bat 'gradlew test --info'
+                bat 'gradlew.bat test --info'
             }
             post {
                 always {
@@ -30,7 +30,7 @@ pipeline {
             steps {
                 script {
                     withSonarQubeEnv('sonar') {
-                        bat 'gradlew sonarqube -Dsonar.gradle.skipCompile=true'
+                        bat 'gradlew.bat sonarqube -Dsonar.gradle.skipCompile=true'
                     }
                 }
             }
