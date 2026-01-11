@@ -7,11 +7,10 @@ node {
          
 
             stage('Test') {
-                bat './gradlew clean test jacocoTestReport'
+                bat './gradlew clean test'
                 junit '**/build/test-results/test/*.xml'
                 // Fixed path to find Cucumber JSON files
                 cucumber buildStatus: 'UNSTABLE', 
-                         jsonReportDirectory: 'build/test-results/test', 
                          fileIncludePattern: 'reports/*.json'
             }
 
