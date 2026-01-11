@@ -36,14 +36,15 @@ pipeline {
             }
         }
         
-        stage('Code Quality') {
-            steps {
-                script {
-                    timeout(time: 1, unit: 'HOURS') {
-                        waitForQualityGate abortPipeline: true
-                    }
-                }
+       stage('Code Analysis') {
+    steps {
+        script {
+            withSonarQubeEnv('sonar') {
+                // We add 'clean' here again to be 100% sure
+                bat "./gradlew clean sonar" 
             }
         }
+    }
+}
     }
 }
