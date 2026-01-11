@@ -1,8 +1,8 @@
 plugins {
     id 'java'
     id 'jacoco'
-    // Update this version
-    id 'org.sonarqube' version '5.1.0.4882' 
+    // Downgrade this to a version compatible with SonarQube 7.4
+    id 'org.sonarqube' version '3.5.0.2730' 
 }
 
 group = 'com.example'
