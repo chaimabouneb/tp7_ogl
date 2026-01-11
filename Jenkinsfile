@@ -1,5 +1,5 @@
 node {
-    // Tool definitions from Jenkins Global Tool Configuration [cite: 60, 62]
+   
     def javaHome = tool 'Java11'
     def scannerHome = tool 'SonarScanner'
 
