@@ -1,39 +1,64 @@
 pipeline {
     agent any
-    tools { jdk 'jdk8' }
+
+    // 1️⃣ Set environment variables
     environment {
-        SONARQUBE_TOKEN = credentials('sonar-token') // Ensure this exists in Jenkins
+        SONARQUBE_TOKEN = credentials('sonar-token') // Secret Text from Jenkins credentials
+    }
+
+    tools {
+        jdk 'jdk8' // Make sure you configured JDK 8 in Jenkins
     }
 
     stages {
+
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/chaimabouneb/tp7_ogl.git', branch: 'main'
+                // Checkout the Git repository
+                checkout scm
             }
         }
 
         stage('Build & Test') {
             steps {
-                bat './gradlew clean test'
+                // Use Gradle wrapper to build and run tests
+                script {
+                    if (isUnix()) {
+                        sh './gradlew clean test'
+                    } else {
+                        bat './gradlew clean test'
+                    }
+                }
+            }
+
+            // Always archive test results even if build fails
+            post {
+                always {
+                    junit 'build/test-results/test/**/*.xml'
+                }
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-                bat './gradlew sonarqube'
+                // Run SonarQube analysis using the Gradle wrapper and token
+                script {
+                    if (isUnix()) {
+                        sh "./gradlew sonarqube -Dsonar.login=${env.SONARQUBE_TOKEN}"
+                    } else {
+                        bat "./gradlew sonarqube -Dsonar.login=${env.SONARQUBE_TOKEN}"
+                    }
+                }
             }
         }
     }
 
     post {
         always {
-            // MUST be inside a node context
-            node {
-                junit 'build/test-results/test/**/*.xml'
-            }
+            echo 'Pipeline finished.'
         }
         success {
-            echo 'Pipeline completed successfully!'
+            echo 'Build and analysis completed successfully!'
         }
         failure {
             echo 'Pipeline failed. Check logs for details.'
