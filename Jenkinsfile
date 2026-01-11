@@ -2,17 +2,15 @@ pipeline {
     agent any
 
     tools {
-        // Use JDK 8 installed on Jenkins
+        // Use the JDK 8 installation configured in Jenkins
         jdk 'jdk8'
-        // SonarQube scanner (must be configured in Jenkins global tools)
-        sonarScanner 'SonarQubeScanner'
+        // Gradle installed in Jenkins (optional, Gradle wrapper will be used)
+        gradle 'Gradle_8.14'
     }
 
     environment {
-        // SonarQube server authentication token
-        SONARQUBE_TOKEN = credentials('sonarqube-token') 
-        // Update this URL to match your SonarQube server
-        SONAR_HOST_URL = 'http://your-sonarqube-server:9000'
+        SONARQUBE_TOKEN = credentials('sonarqube-token') // Jenkins credentials ID
+        SONAR_HOST_URL = 'http://your-sonarqube-server:9000' // Update to your server
     }
 
     stages {
@@ -25,6 +23,7 @@ pipeline {
 
         stage('Build & Test') {
             steps {
+                // Use Gradle wrapper
                 bat './gradlew clean test'
             }
             post {
@@ -37,11 +36,10 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('sonar') { // Name of the SonarQube server configured in Jenkins
-                    bat "./gradlew sonarqube " +
-                        "-Dsonar.host.url=%SONAR_HOST_URL% " +
-                        "-Dsonar.login=%SONARQUBE_TOKEN%"
-                }
+                // Use Gradle SonarQube plugin
+                bat "./gradlew sonarqube " +
+                    "-Dsonar.host.url=%SONAR_HOST_URL% " +
+                    "-Dsonar.login=%SONARQUBE_TOKEN%"
             }
         }
 
