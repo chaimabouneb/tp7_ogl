@@ -30,13 +30,16 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('SonarQube') {
-                    bat './gradlew sonarqube'
-                }
+      stage('SonarQube Analysis') {
+    steps {
+        script {
+            withSonarQubeEnv('SonarQube') {
+                // Adding 'clean' here is the ultimate safety net
+                bat './gradlew clean sonar'
             }
         }
+    }
+}
     }
 
     post {
