@@ -2,6 +2,12 @@ pipeline {
     agent any
     
     stages {
+        stage('Clean Workspace') {
+            steps {
+                cleanWs()
+            }
+        }
+        
         stage('Build') {
             steps {
                 bat './gradlew clean compileJava compileTestJava'
@@ -10,7 +16,7 @@ pipeline {
         
         stage('Test') {
             steps {
-                bat './gradlew test'
+                bat './gradlew test --info'
             }
             post {
                 always {
@@ -24,7 +30,7 @@ pipeline {
             steps {
                 script {
                     withSonarQubeEnv('sonar') {
-                        bat './gradlew sonarqube'
+                        bat './gradlew sonarqube -Dsonar.gradle.skipCompile=true'
                     }
                 }
             }
@@ -38,13 +44,6 @@ pipeline {
                     }
                 }
             }
-        }
-    }
-    
-    // Add this to ensure workspace is cleaned
-    post {
-        always {
-            cleanWs()
         }
     }
 }
