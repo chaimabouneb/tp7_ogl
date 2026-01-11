@@ -1,5 +1,4 @@
 node {
-    // This pulls the path for 'Java11' defined in Jenkins Tools
     def javaHome = tool 'Java11'
     
     // This sets the environment variables for this specific execution
