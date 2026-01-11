@@ -31,16 +31,17 @@ pipeline {
             }
         }
 
-   stage('SonarQube Analysis') {
-            steps {
-                script {
-                    withSonarQubeEnv('sonar') {
-                        // Use 'sonar' instead of 'sonarqube' (it's the newer command)
-                        bat './gradlew sonar' 
-                    }
-                }
+  stage('SonarQube Analysis') {
+    steps {
+        script {
+            withSonarQubeEnv('sonar') {
+                // Add -Dsonar.java.jdkHome if you know the path, 
+                // but usually 'clean' and 'sonar' together fixes bytecode issues.
+                bat './gradlew clean sonar'
             }
         }
+    }
+}
     }
 
     post {
