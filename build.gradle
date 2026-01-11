@@ -3,6 +3,14 @@ plugins {
     id 'jacoco'
     id 'org.sonarqube' version '4.4.1.3373' 
 }
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+// Or if you are using the simpler syntax:
+// sourceCompatibility = '11'
+// targetCompatibility = '11'
 sourceCompatibility = '11' // Old Sonar needs Old Java
 targetCompatibility = '11'
 
