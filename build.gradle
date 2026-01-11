@@ -1,6 +1,5 @@
 plugins {
     id 'java'
-    // Using a stable version that works well with Java 17
     id "org.sonarqube" version "4.4.1.3373"
     id 'jacoco'
 }
@@ -9,15 +8,12 @@ group = 'com.example'
 version = '1.0-SNAPSHOT'
 
 java {
-    // We keep the toolchain at 21 if you have it installed, 
-    // but we force the bytecode to be version 17 (Major 61)
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
 tasks.withType(JavaCompile) {
-    // This is the magic fix: it tells the compiler to create Java 17 classes
     options.release = 17
 }
 
@@ -26,12 +22,34 @@ repositories {
 }
 
 dependencies {
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
+    // Main dependencies
+    implementation 'com.googlecode.matrix-toolkits-java:mtj:1.0.4'
+    
+    // Test dependencies - Cucumber with JUnit 4 integration
+    testImplementation 'io.cucumber:cucumber-java:7.15.0'
+    testImplementation 'io.cucumber:cucumber-junit:7.15.0'
+    testImplementation 'io.cucumber:cucumber-junit-platform-engine:7.15.0'
+    
+    // JUnit dependencies
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+    testImplementation 'org.junit.vintage:junit-vintage-engine:5.10.0'
+    testImplementation 'org.junit.platform:junit-platform-suite:1.10.0'
+    
+    // Cucumber DataTable support
+    testImplementation 'io.cucumber:cucumber-picocontainer:7.15.0'
+    
+    // Assertions
+    testImplementation 'org.assertj:assertj-core:3.24.2'
 }
 
 test {
+    // Use JUnit Platform for running tests
     useJUnitPlatform()
+    
+    // Include Cucumber tests
+    systemProperty("cucumber.junit-platform.naming-strategy", "long")
+    
     finalizedBy jacocoTestReport
 }
 
@@ -39,6 +57,7 @@ jacocoTestReport {
     dependsOn test
     reports {
         xml.required = true
+        html.required = true
     }
 }
 
@@ -50,6 +69,9 @@ sonar {
         property "sonar.sources", "src/main/java"
         property "sonar.tests", "src/test/java"
         property "sonar.java.binaries", "build/classes/java/main"
+        property "sonar.java.test.binaries", "build/classes/java/test"
+        property "sonar.junit.reportPaths", "build/test-results/test"
         property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
+        property "sonar.gradle.skipCompile", "true"  // To avoid the deprecation warning
     }
 }
