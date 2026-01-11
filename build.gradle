@@ -1,12 +1,13 @@
 plugins {
     id 'java'
     id 'jacoco'
-    id 'org.sonarqube' version '4.4.0.3356' // SonarQube plugin
+    id 'org.sonarqube' version '4.4.1.3373' 
 }
 
 group = 'com.example'
 version = '1.0-SNAPSHOT'
 
+// This ensures SonarQube won't crash with "Major Version 65"
 sourceCompatibility = '17'
 targetCompatibility = '17'
 
@@ -15,18 +16,21 @@ repositories {
 }
 
 dependencies {
-    // JUnit for testing
+    // JUnit 4
     testImplementation 'junit:junit:4.13.2'
 
-    // Cucumber dependencies
-    testImplementation 'io.cucumber:cucumber-java:8.12.0'
-    testImplementation 'io.cucumber:cucumber-junit:8.12.0'
-    testImplementation 'io.cucumber:cucumber-junit-platform-engine:8.12.0'
-    testImplementation 'io.cucumber:cucumber-picocontainer:8.12.0'
+    // Cucumber dependencies (Using valid version 7.15.0)
+    testImplementation 'io.cucumber:cucumber-java:7.15.0'
+    testImplementation 'io.cucumber:cucumber-junit:7.15.0'
+    testImplementation 'io.cucumber:cucumber-picocontainer:7.15.0'
+    
+    // Support for JUnit 5 platform if you have mixed tests
+    testImplementation 'org.junit.vintage:junit-vintage-engine:5.10.0'
 }
 
 test {
-    useJUnit()
+    // Change this to useJUnitPlatform() to support Cucumber 7 correctly
+    useJUnitPlatform() 
     testLogging {
         events "passed", "skipped", "failed"
         showStandardStreams = true
@@ -38,5 +42,12 @@ jacocoTestReport {
     reports {
         xml.required = true
         html.required = true
+    }
+}
+
+// Keep your Sonar settings but add the binary path check
+sonar {
+    properties {
+        property "sonar.java.binaries", "build/classes/java/main"
     }
 }
