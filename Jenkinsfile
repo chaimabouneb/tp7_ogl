@@ -1,3 +1,7 @@
+tools {
+    // This must match the name you gave it in Global Tool Configuration
+    sonarScanner 'SonarScanner' 
+}
 pipeline {
     agent any
 
