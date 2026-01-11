@@ -10,13 +10,13 @@ pipeline {
         
         stage('Build') {
             steps {
-                bat './gradlew clean compileJava compileTestJava'
+                bat 'gradlew clean compileJava compileTestJava'
             }
         }
         
         stage('Test') {
             steps {
-                bat './gradlew test --info'
+                bat 'gradlew test --info'
             }
             post {
                 always {
@@ -30,21 +30,20 @@ pipeline {
             steps {
                 script {
                     withSonarQubeEnv('sonar') {
-                        bat './gradlew sonarqube -Dsonar.gradle.skipCompile=true'
+                        bat 'gradlew sonarqube -Dsonar.gradle.skipCompile=true'
                     }
                 }
             }
         }
         
-       stage('Code Analysis') {
-    steps {
-        script {
-            withSonarQubeEnv('sonar') {
-                // We add 'clean' here again to be 100% sure
-                bat "./gradlew clean sonar" 
+        stage('Code Quality') {
+            steps {
+                script {
+                    timeout(time: 1, unit: 'HOURS') {
+                        waitForQualityGate abortPipeline: true
+                    }
+                }
             }
         }
-    }
-}
     }
 }
