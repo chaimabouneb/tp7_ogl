@@ -34,7 +34,7 @@ pipeline {
    stage('SonarQube Analysis') {
             steps {
                 script {
-                    withSonarQubeEnv('SonarQube') {
+                    withSonarQubeEnv('sonar') {
                         // Use 'sonar' instead of 'sonarqube' (it's the newer command)
                         bat './gradlew sonar' 
                     }
