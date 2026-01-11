@@ -10,7 +10,7 @@ node {
             }
 
             stage('Test') {
-                // 1. Launch unit tests [cite: 24]
+             
                 bat './gradlew clean test jacocoTestReport'
                 
                 // 2. Archive unit test results [cite: 25]
