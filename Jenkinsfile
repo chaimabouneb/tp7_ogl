@@ -2,29 +2,34 @@ pipeline {
     agent any
     
     stages {
+        stage('Build') {
+            steps {
+                bat './gradlew clean compileJava compileTestJava'
+            }
+        }
+        
         stage('Test') {
             steps {
-                bat './gradlew'
+                bat './gradlew test'
             }
             post {
                 always {
                     junit 'build/test-results/test/**/*.xml'
+                    cucumber jsonReportDirectory: 'build/reports/cucumber/', fileIncludePattern: '*.json'
                 }
             }
         }
      
-        // Phase 2.2: Code Analysis - AVEC withSonarQubeEnv
         stage('Code Analysis') {
             steps {
                 script {
-                    withSonarQubeEnv('sonar') {  // 'sonar' = nom configuré dans Jenkins
+                    withSonarQubeEnv('sonar') {
                         bat './gradlew sonarqube'
                     }
                 }
             }
         }
         
-        // Phase 2.3: Code Quality
         stage('Code Quality') {
             steps {
                 script {
@@ -33,6 +38,13 @@ pipeline {
                     }
                 }
             }
+        }
+    }
+    
+    // Add this to ensure workspace is cleaned
+    post {
+        always {
+            cleanWs()
         }
     }
 }
