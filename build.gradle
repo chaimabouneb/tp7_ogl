@@ -40,7 +40,7 @@ jacocoTestReport {
     }
 }
 
-// Deploy Phase Configuration [cite: 38, 158]
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
