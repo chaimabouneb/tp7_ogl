@@ -4,9 +4,7 @@ node {
 
     withEnv(["JAVA_HOME=${javaHome}", "PATH+JAVA=${javaHome}/bin"]) {
         try {
-            stage('Checkout') {
-                checkout scm
-            }
+         
 
             stage('Test') {
                 bat './gradlew clean test jacocoTestReport'
